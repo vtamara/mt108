@@ -1,0 +1,71 @@
+<script>
+  window.porcentaje = <%= @porcentaje %>;
+  window.suma = <%= @suma %>;
+  window.meta = <%= @meta %>;
+</script>
+<div class="grancontenedor">
+  <h1>Etapa 1: Para estudios, planos y permisos</h1>
+</div>
+<div class="medicion">
+  <div class="pipeta">
+    <div class="vacio"></div>
+    <div class="lleno"></div>
+  </div>
+  <div class="e100"> 100</div>
+  <div class="e90">- 90</div>
+  <div class="e80">- 80</div>
+  <div class="e70">- 70</div>
+  <div class="e60">- 60</div>
+  <div class="e50">- 50</div>
+  <div class="e40">- 40</div>
+  <div class="e30">- 30</div>
+  <div class="e20">- 20</div>
+  <div class="e10">- 10</div>
+</div>
+<div class="donantes">
+  
+<div id="accordion">
+  <div class="card">
+    <div class="card-header" id="headingOne">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+  	  Donaciones superiores a 2'500.000
+        </button>
+      </h5>
+    </div>
+    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+      <div class="card-body">
+        <p>Iglesia x</p>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingTwo">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          Donaciones entre 1'000.000 y 2'499.999
+        </button>
+      </h5>
+    </div>
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+      <div class="card-body">
+        <p>Persona y</p>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingThree">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          Donaciones hasta 1'000.000
+        </button>
+      </h5>
+    </div>
+    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+      <div class="card-body">
+        <p>Persona x</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

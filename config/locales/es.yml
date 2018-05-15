@@ -1,0 +1,17 @@
+es:
+  activerecord:
+    attributes:
+      "donacion":
+        Donacion: Donación
+        Donaciones: Donaciones
+        nombre: Donante
+        fecha_localizada: Fecha de la donación
+        valor_localizado: Valor
+      'etapa':
+        Etapa: Etapa
+        Etapas: Etapas
+        descripcion: Descripción
+        destacadona1: Valor de donacion más destacado
+        destacadona2: Segundo valor de donacion destacado
+        destacadona3: Tercer valor de donacion destacado
+
