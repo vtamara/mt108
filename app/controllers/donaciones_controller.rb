@@ -38,8 +38,8 @@ class DonacionesController < Sip::ModelosController
     @meta = 16000000
     @porcentaje = @suma*100/@meta
     @porcentaje = @porcentaje.to_i
-    ::Donacion.all.each do |d|
-      if d>
+    #::Donacion.all.each do |d|
+    #  if d>
     render :termometro
   end
 

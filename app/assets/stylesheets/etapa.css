@@ -1,15 +1,17 @@
 .grancontenedor {
   display: flex;
+  margin-left: 20%;
 }
 
 .medicion {
   position: relative;
-  width: 100px;
+  width: 150px;
 }
 
 .donaciones {
   width: auto;
 }
+
 .pipeta {
   border: 1px solid;
   width:10px;

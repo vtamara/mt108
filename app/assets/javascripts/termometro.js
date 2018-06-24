@@ -3,7 +3,7 @@ function establece_porcentaje(p) {
   $('.lleno').height(2*p);  
 }
 
-$(document).ready(function() {
+$( document ).on('turbolinks:load', function() {
   p = window.porcentaje;
   s = window.suma;
   m = window.meta;

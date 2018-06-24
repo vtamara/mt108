@@ -2,70 +2,92 @@
   window.porcentaje = <%= @porcentaje %>;
   window.suma = <%= @suma %>;
   window.meta = <%= @meta %>;
+  <% puts "porcentaje=#{@porcentaje}, suma=#{@suma}, meta=#{@meta}" %>
 </script>
+<h1>Etapa <%= @registro.id %> - <%= @registro.nombre %> : <%= @porcentaje %>% </h1>
 <div class="grancontenedor">
-  <h1>Etapa 1: Para estudios, planos y permisos</h1>
-</div>
-<div class="medicion">
-  <div class="pipeta">
-    <div class="vacio"></div>
-    <div class="lleno"></div>
+  <div class="medicion">
+    <div class="pipeta">
+      <div class="vacio"></div>
+      <div class="lleno"></div>
+    </div> <!-- .pipeta-->
+    <div class="e100"> 100</div>
+    <div class="e90">- 90</div>
+    <div class="e80">- 80</div>
+    <div class="e70">- 70</div>
+    <div class="e60">- 60</div>
+    <div class="e50">- 50</div>
+    <div class="e40">- 40</div>
+    <div class="e30">- 30</div>
+    <div class="e20">- 20</div>
+    <div class="e10">- 10</div>
+  </div> <!-- .medicion -->
+  <div class="donantes">
+    <div id="accordion">
+      <div class="card">
+        <div class="card-header" id="headingOne">
+          <h5 class="mb-0">
+            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+              Donaciones superiores a <%= @registro.destacadona1_localizado %>
+            </button>
+          </h5>
+        </div> <!-- .card-header -->
+        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+          <div class="card-body">
+            <% @registro.donacion.where('valor>=?', @registro.destacadona1).each do |d| %>
+              <p><%= d.nombre %></p>
+            <% end %>
+          </div>
+        </div>
+      </div><!-- .card -->
+      <div class="card">
+        <div class="card-header" id="headingTwo">
+          <h5 class="mb-0">
+            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+              Donaciones entre <%= @registro.destacadona2_localizado %> y <%= (@registro.destacadona1_localizado) %>
+            </button>
+          </h5>
+        </div>
+        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+          <div class="card-body">
+            <% @registro.donacion.where('?<=valor AND valor<?', @registro.destacadona2, @registro.destacadona1).each do |d| %>
+              <p><%= d.nombre %></p>
+            <% end %>
+          </div>
+        </div>
+      </div><!-- .card -->
+      <div class="card">
+        <div class="card-header" id="headingThree">
+          <h5 class="mb-0">
+            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+              Donaciones hasta <%= (@registro.destacadona2_localizado) %> 
+            </button>
+          </h5>
+        </div>
+        <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+          <div class="card-body">
+            <% @registro.donacion.where('valor<?', @registro.destacadona2).each do |d| %>
+              <p><%= d.nombre %></p>
+            <% end %>
+          </div>
+        </div>
+      </div><!-- .card -->
+    </div><!-- #accordion -->
+  </div><!--.donantes-->
+</div><!--.grancontenedor -->
+<div class="container">
+    <div class="row">
+    <div class='col-xs-6'>
+      <% if @registro.id > 1 %>
+        <%= link_to 'Etapa Anterior', main_app.etapa_path(@registro.id - 1) %>
+      <% end %>
+    </div>
+    <div class='col-xs-6'>
+      <% if @registro.id < 4 %>
+        <%= link_to 'Etapa Siguiente', main_app.etapa_path(@registro.id + 1) %>
+      <% end %>
+    </div>
   </div>
-  <div class="e100"> 100</div>
-  <div class="e90">- 90</div>
-  <div class="e80">- 80</div>
-  <div class="e70">- 70</div>
-  <div class="e60">- 60</div>
-  <div class="e50">- 50</div>
-  <div class="e40">- 40</div>
-  <div class="e30">- 30</div>
-  <div class="e20">- 20</div>
-  <div class="e10">- 10</div>
-</div>
-<div class="donantes">
-  
-<div id="accordion">
-  <div class="card">
-    <div class="card-header" id="headingOne">
-      <h5 class="mb-0">
-        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-  	  Donaciones superiores a 2'500.000
-        </button>
-      </h5>
-    </div>
-    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
-      <div class="card-body">
-        <p>Iglesia x</p>
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header" id="headingTwo">
-      <h5 class="mb-0">
-        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-          Donaciones entre 1'000.000 y 2'499.999
-        </button>
-      </h5>
-    </div>
-    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-      <div class="card-body">
-        <p>Persona y</p>
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header" id="headingThree">
-      <h5 class="mb-0">
-        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-          Donaciones hasta 1'000.000
-        </button>
-      </h5>
-    </div>
-    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
-      <div class="card-body">
-        <p>Persona x</p>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
+</div> <!-- .container -->
+
+

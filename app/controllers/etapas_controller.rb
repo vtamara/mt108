@@ -36,8 +36,8 @@ class EtapasController < Sip::ModelosController
   def show
     @suma = ::Donacion.where(etapa_id: @registro.id).sum(:valor)
     @meta = @registro.meta
-    @porcentaje = @suma*100/@meta
-    @porcentaje = @porcentaje.to_i
+    @porcentaje = @suma*100.0/@meta
+    @porcentaje = @porcentaje.round(2)
     render 
   end
 
