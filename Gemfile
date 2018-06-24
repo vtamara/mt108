@@ -60,8 +60,8 @@ end
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 # Motor SIP
-#gem 'sip', github: 'pasosdeJesus/sip'
-gem 'sip', path: '../sip'
+gem 'sip', github: 'pasosdeJesus/sip'
+#gem 'sip', path: '../sip'
 
 # Anexos
 gem 'paperclip'                  
