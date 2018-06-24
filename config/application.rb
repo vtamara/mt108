@@ -21,5 +21,6 @@ module Mt108
     config.active_record.schema_format = :sql
     ActiveRecord::Base.pluralize_table_names=false
     config.railties_order = [:main_app, Sip::Engine, :all]
+    config.relative_url_root = "/menosuba"
   end
 end

@@ -1,7 +1,7 @@
 PATH
   remote: ../sip
   specs:
-    sip (2.0.b5)
+    sip (2.0.b4)
       bootstrap-datepicker-rails
       cancancan
       chosen-rails
@@ -75,7 +75,6 @@ GEM
     bootstrap-datepicker-rails (1.8.0.1)
       railties (>= 3.0)
     builder (3.2.3)
-    byebug (10.0.2)
     camertron-eprun (1.1.1)
     cancancan (2.2.0)
     capybara (3.1.0)
@@ -276,7 +275,6 @@ PLATFORMS
 DEPENDENCIES
   bootsnap (>= 1.1.0)
   bootstrap-datepicker-rails
-  byebug
   cancancan
   capybara (>= 2.15, < 4.0)
   chosen-rails
@@ -301,7 +299,6 @@ DEPENDENCIES
   turbolinks (~> 5)
   twitter-bootstrap-rails
   twitter_cldr
-  tzinfo-data
   uglifier (>= 1.3.0)
   web-console (>= 3.3.0)
   will_paginate
