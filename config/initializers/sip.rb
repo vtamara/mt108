@@ -7,5 +7,5 @@ Sip.setup do |config|
       if !ENV["HEROKU_POSTGRESQL_GREEN_URL"].nil?
         config.ruta_anexos = "#{Rails.root}/tmp/"
       end
-      config.titulo = "Colecta para el Templo de la Iglesia Menonita de Suba"
+      config.titulo = I18n.t("gen.colecta_para_el_templo_de_la_mision_menonita_de_suba")
 end

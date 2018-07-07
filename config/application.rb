@@ -16,6 +16,7 @@ module Mt108
     # -- all .rb files in that directory are automatically loaded after loading
     # the framework and any gems in your application.
     config.time_zone = 'America/Bogota'
+    config.i18n.available_locales = [:en, :es]
     config.i18n.default_locale = :es
     config.x.formato_fecha = 'dd/M/yyyy'
     config.active_record.schema_format = :sql

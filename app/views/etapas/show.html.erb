@@ -4,7 +4,9 @@
   window.meta = <%= @meta %>;
   <% puts "porcentaje=#{@porcentaje}, suma=#{@suma}, meta=#{@meta}" %>
 </script>
-<h1>Etapa <%= @registro.id %> - <%= @registro.nombre %> : <%= @porcentaje %>% </h1>
+<% # Localización: https://phraseapp.com/blog/posts/rails-i18n-setting-and-managing-locales/ %>
+<%= render 'shared/change_locale' %>
+<h1><%= t('.etapa') %> <%= @registro.id %> - <%= @registro.nombre %> : <%= @porcentaje %>% </h1>
 <div class="grancontenedor">
   <div class="medicion">
     <div class="pipeta">
@@ -28,13 +30,15 @@
         <div class="card-header" id="headingOne">
           <h5 class="mb-0">
             <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-              Donaciones superiores a <%= @registro.destacadona1_localizado %>
+              <%= t('.donaciones_superiores_a') %> 
+              <%= @registro.destacadona1_localizado %>
             </button>
           </h5>
         </div> <!-- .card-header -->
         <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
           <div class="card-body">
-            <% @registro.donacion.where('valor>=?', @registro.destacadona1).each do |d| %>
+            <% @registro.donacion.where(
+              'valor>=?', @registro.destacadona1).each do |d| %>
               <p><%= d.nombre %></p>
             <% end %>
           </div>
@@ -44,13 +48,18 @@
         <div class="card-header" id="headingTwo">
           <h5 class="mb-0">
             <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-              Donaciones entre <%= @registro.destacadona2_localizado %> y <%= (@registro.destacadona1_localizado) %>
+              <%= t('.donaciones_entre') %>
+              <%= @registro.destacadona2_localizado %> 
+              <%= t('.y') %>
+              <%= (@registro.destacadona1_localizado) %>
             </button>
           </h5>
         </div>
         <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
           <div class="card-body">
-            <% @registro.donacion.where('?<=valor AND valor<?', @registro.destacadona2, @registro.destacadona1).each do |d| %>
+            <% @registro.donacion.where(
+              '?<=valor AND valor<?', @registro.destacadona2, 
+              @registro.destacadona1).each do |d| %>
               <p><%= d.nombre %></p>
             <% end %>
           </div>
@@ -60,13 +69,15 @@
         <div class="card-header" id="headingThree">
           <h5 class="mb-0">
             <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-              Donaciones hasta <%= (@registro.destacadona2_localizado) %> 
+              <%= t('.donacionas_hasta') %>
+              <%= (@registro.destacadona2_localizado) %> 
             </button>
           </h5>
         </div>
         <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
           <div class="card-body">
-            <% @registro.donacion.where('valor<?', @registro.destacadona2).each do |d| %>
+            <% @registro.donacion.where(
+              'valor<?', @registro.destacadona2).each do |d| %>
               <p><%= d.nombre %></p>
             <% end %>
           </div>
@@ -77,14 +88,16 @@
 </div><!--.grancontenedor -->
 <div class="container">
     <div class="row">
-    <div class='col-xs-6'>
+      <div class='col-xs-6'>
       <% if @registro.id > 1 %>
-        <%= link_to 'Etapa Anterior', main_app.etapa_path(@registro.id - 1) %>
+        <%= link_to t('.etapa_anterior'), 
+          main_app.etapa_path(@registro.id - 1, locale: locale) %>
       <% end %>
     </div>
     <div class='col-xs-6'>
       <% if @registro.id < 4 %>
-        <%= link_to 'Etapa Siguiente', main_app.etapa_path(@registro.id + 1) %>
+        <%= link_to t('.etapa_siguiente'), 
+          main_app.etapa_path(@registro.id + 1, locale: locale) %>
       <% end %>
     </div>
   </div>

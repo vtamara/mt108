@@ -6,6 +6,11 @@ class EtapasController < Sip::ModelosController
   before_action :set_etapa, 
     only: [:show, :edit, :update, :destroy]
   load_and_authorize_resource  class: ::Etapa
+  before_action :set_locale
+
+  def set_locale
+    I18n.locale = params[:locale] || I18n.default_locale
+  end
 
   def clase 
     "::Etapa"
@@ -38,7 +43,7 @@ class EtapasController < Sip::ModelosController
     @meta = @registro.meta
     @porcentaje = @suma*100.0/@meta
     @porcentaje = @porcentaje.round(2)
-    render 
+    render layout: 'show'
   end
 
   def index_reordenar(registros)

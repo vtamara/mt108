@@ -82,3 +82,23 @@
   top: 180px;
   display: none;
 }
+
+ul.idioma {
+    list-style-type: none;
+    height: 80px;
+    width: 663px;
+    margin: auto;
+}
+ul.idioma li {
+    float: right;
+}
+
+ul.idioma a {
+  padding-right: 8px;
+  padding-left: 8px;
+  display: block;
+  text-decoration: none;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 0.8em;
+  color: #371C1C;
+}

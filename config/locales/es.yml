@@ -1,4 +1,6 @@
 es:
+  gen:
+    titulo: Colecta para el templo de la Misión Menonita de Suba
   activerecord:
     attributes:
       "donacion":
@@ -14,4 +16,15 @@ es:
         destacadona1: Valor de donacion más destacado
         destacadona2: Segundo valor de donacion destacado
         destacadona3: Tercer valor de donacion destacado
+  etapas:
+    show:
+      etapa: Etapa
+      donaciones_entre: Donaciones entre
+      donacionas_hasta: Donaciones hasta
+      donaciones_superiores_a: Donaciones superiores a
+      etapa_anterior: Etapa anterior
+      etapa_siguiente: Etapa siguiente
+      y: y
+
+
 

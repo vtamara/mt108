@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 Rails.application.routes.draw do
-  scope '/menosuba' do
+  scope '/menosuba/(:locale)', locale: /en|es/ do
     devise_scope :usuario do
       get 'sign_out' => 'devise/sessions#destroy'
     end
@@ -18,7 +18,8 @@ Rails.application.routes.draw do
 
     resources :etapas, path_names: { new: 'nueva', edit: 'edita' }
 
-    #root 'sip/hogar#index'
+    get '/:locale' => 'sip/hogar#index'
+    root 'sip/hogar#index'
   end
   mount Sip::Engine, at: "/menosuba"
 end
