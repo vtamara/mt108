@@ -102,3 +102,4 @@ gem 'chosen-rails'
 # Usamos jquery
 gem 'jquery-rails'               
 
+gem 'unicorn'

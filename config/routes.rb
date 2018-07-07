@@ -18,7 +18,7 @@ Rails.application.routes.draw do
 
     resources :etapas, path_names: { new: 'nueva', edit: 'edita' }
 
-    root 'sip/hogar#index'
+    #root 'sip/hogar#index'
   end
   mount Sip::Engine, at: "/menosuba"
 end
