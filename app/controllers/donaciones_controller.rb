@@ -24,6 +24,10 @@ class DonacionesController < Sip::ModelosController
     ]
   end
 
+  def index
+    super
+  end
+
   def index_reordenar(registros)
     return registros.reorder(:fecha)
   end

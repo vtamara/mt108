@@ -6,7 +6,7 @@ class ApplicationController < Sip::ApplicationController
   # En el caso de APIs, en cambio puedes querer usar :null_session
   protect_from_forgery with: :exception
 
-  before_action :set_locale
+  #before_action :set_locale
 
   def set_locale
     I18n.locale = params[:locale] || I18n.default_locale
