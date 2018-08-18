@@ -55,9 +55,10 @@ class Ability  < Sip::Ability
         can [:update, :create, :destroy], Sip::Ubicacion
       when Ability::ROLADMIN
         can :manage, ::Donacion
+        can :manage, ::Etapa
+        can :manage, ::Usuario
         can :manage, Sip::Ubicacion
         can :manage, Sip::Respaldo7z
-        can :manage, ::Usuario
         can :manage, :tablasbasicas
         self.tablasbasicas.each do |t|
           c = Ability.tb_clase(t)

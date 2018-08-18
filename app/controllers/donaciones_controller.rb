@@ -16,10 +16,12 @@ class DonacionesController < Sip::ModelosController
     [
       "id",
       "nombre",
+      "nombre_en",
       "fecha_localizada",
       "valor_localizado",
       "credito",
       "mensaje",
+      "mensaje_en",
       "etapa_id"
     ]
   end

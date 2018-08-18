@@ -9,13 +9,19 @@ es:
         nombre: Donante
         fecha_localizada: Fecha de la donación
         valor_localizado: Valor
+        nombre_en: Donante en inglés
+        mensaje_en: Mensaje en inglés
       'etapa':
         Etapa: Etapa
         Etapas: Etapas
         descripcion: Descripción
+        descripcion_en: Descripción en inglés
         destacadona1: Valor de donacion más destacado
         destacadona2: Segundo valor de donacion destacado
         destacadona3: Tercer valor de donacion destacado
+        prestamo: Valor prestamo
+        infoprestamo: Detalles del prestamo
+        infoprestamo_en: Detalles del prestamo en inglés
   etapas:
     show:
       etapa: Etapa
