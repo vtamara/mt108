@@ -5,7 +5,7 @@ if (test -f ".env") then {
 	. .env
 } fi;
 if (test "$RC" = "") then {
-	RC=sivel2
+	RC=mt108
 } fi;
 if (test "$RAILS_ENV" = "") then {
 	RAILS_ENV=development

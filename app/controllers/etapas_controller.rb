@@ -58,7 +58,7 @@ class EtapasController < Sip::ModelosController
     @destacado1 = @registro.destacadona1
     @destacado2 = @registro.destacadona2
     @notas = ""
-    @notas2 = "We receive donations through Paypal and Pasos de Jesús, if you donate please specify 'For Suba Mission'"
+    @notas2 = "Recibimos donaciones mediante Paypal y Pasos de Jesús, si noa por favor especifque 'Para Misión en Suba' y ponga el nombre que quiere en la aplicación y si desea una dedicatoria'"
 
     if locale == :en 
       @suma = @suma/ApplicationHelper::DOLAR
@@ -74,6 +74,7 @@ class EtapasController < Sip::ModelosController
       @notas += "Featured values of donations rounded to 10s. "
       @destacado2 = @registro.destacadona2 / (ApplicationHelper::DOLAR*10)
       @destacado2 = @destacado2.round*10
+      @notas2 = "We receive donations through Paypal and Pasos de Jesús, if you donate please specify 'For Suba Mission' and the name that you want in the application and if you want a dedication"
     end
     render layout: 'show'
   end
