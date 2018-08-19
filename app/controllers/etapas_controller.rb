@@ -60,6 +60,13 @@ class EtapasController < Sip::ModelosController
     @notas = ""
     @notas2 = "Recibimos donaciones mediante Paypal y Pasos de Jesús, si noa por favor especifque 'Para Misión en Suba' y ponga el nombre que quiere en la aplicación y si desea una dedicatoria'"
 
+    @grupod1 = @registro.donacion.where(
+      'valor>=?', @registro.destacadona1)
+    @grupod2 = @registro.donacion.where(
+      '?<=valor AND valor<?', @registro.destacadona2, 
+      @registro.destacadona1)
+    @grupod3 = @registro.donacion.where(
+      'valor<?', @registro.destacadona2)
     if locale == :en 
       @suma = @suma/ApplicationHelper::DOLAR
       @notas += "Using #{ApplicationHelper::DOLAR} as exchange rate. "

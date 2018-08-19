@@ -7,6 +7,19 @@
 </script>
 <% # Localización: https://phraseapp.com/blog/posts/rails-i18n-setting-and-managing-locales/ %>
 <%= render 'shared/change_locale' %>
+<%
+  def nombre_donante(g)
+    locale == :es ? g[1][0].nombre : g[1][0].nombre_en
+  end
+
+  def valor_donacion(g)
+    v = g[1].map(&:valor).sum
+    if locale == :en
+      v = v / ApplicationHelper::DOLAR
+    end
+    v.round
+  end
+%>
 <h1>
   <%= t('.etapa') %> <%= @registro.id %> - 
   <%= locale == :es ? @registro.nombre : @registro.nombre_en %> 
@@ -43,9 +56,10 @@
         </div> <!-- .card-header -->
         <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
           <div class="card-body">
-            <% @registro.donacion.where(
-              'valor>=?', @registro.destacadona1).each do |d| %>
-              <p><%= locale == :es ? d.nombre : d.nombre_en %></p>
+            <% @grupod1.group_by(&:nombre).each do |g| %>
+              <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
+                <%= nombre_donante(g) %>
+              </p>
             <% end %>
           </div>
         </div>
@@ -63,10 +77,10 @@
         </div>
         <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
           <div class="card-body">
-            <% @registro.donacion.where(
-              '?<=valor AND valor<?', @registro.destacadona2, 
-              @registro.destacadona1).each do |d| %>
-              <p><%= d.nombre %></p>
+            <% @grupod2.group_by(&:nombre).each do |g| %>
+              <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
+                <%= nombre_donante(g) %>
+              </p>
             <% end %>
           </div>
         </div>
@@ -82,9 +96,11 @@
         </div>
         <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
           <div class="card-body">
-            <% @registro.donacion.where(
-              'valor<?', @registro.destacadona2).each do |d| %>
-              <p><%= d.nombre %></p>
+            <% @grupod3.group_by(&:nombre).each do |d| %>
+              <% v = d[1].map(&:valor).sum %>
+              <p data-toogle='tooltip' title='<%= v %>'>
+                <%= locale == :es ? d[1][0].nombre : d[1][0].nombre_en %>
+              </p>
             <% end %>
           </div>
         </div>
