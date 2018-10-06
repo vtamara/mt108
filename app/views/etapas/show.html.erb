@@ -96,10 +96,9 @@
         </div>
         <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
           <div class="card-body">
-            <% @grupod3.group_by(&:nombre).each do |d| %>
-              <% v = d[1].map(&:valor).sum %>
-              <p data-toogle='tooltip' title='<%= v %>'>
-                <%= locale == :es ? d[1][0].nombre : d[1][0].nombre_en %>
+            <% @grupod3.group_by(&:nombre).each do |g| %>
+              <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
+                <%= nombre_donante(g) %>
               </p>
             <% end %>
           </div>

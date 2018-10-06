@@ -58,7 +58,7 @@ class EtapasController < Sip::ModelosController
     @destacado1 = @registro.destacadona1
     @destacado2 = @registro.destacadona2
     @notas = ""
-    @notas2 = "Recibimos donaciones mediante Paypal y Pasos de Jesús, si noa por favor especifque 'Para Misión en Suba' y ponga el nombre que quiere en la aplicación y si desea una dedicatoria'"
+    @notas2 = "Recibimos donaciones mediante Paypal y Pasos de Jesús, si dona por favor especifique 'Para Misión en Suba' y ponga el nombre que desea presentar en la aplicación y si desea una dedicatoria'"
 
     @grupod1 = @registro.donacion.where(
       'valor>=?', @registro.destacadona1)
