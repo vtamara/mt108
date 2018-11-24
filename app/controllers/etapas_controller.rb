@@ -58,15 +58,21 @@ class EtapasController < Sip::ModelosController
     @destacado1 = @registro.destacadona1
     @destacado2 = @registro.destacadona2
     @notas = ""
-    @notas2 = "Recibimos donaciones mediante Paypal y Pasos de Jesús, si dona por favor especifique 'Para Misión en Suba' y ponga el nombre que desea presentar en la aplicación y si desea una dedicatoria'"
+    @notas2 = "Recibimos donaciones de dos formas: (1) Consignación en la cuenta corriente del Banco de Occidente 240066712 a nombre de 'Iglesia Menonita de Colombia', o (2)  mediante el Paypal de 'Pasos de Jesús', si dona mediante paypal por favor especifique 'Para Misión en Suba' y ponga el nombre que desea presentar en este sitio web."
 
-    @grupod1 = @registro.donacion.where(
-      'valor>=?', @registro.destacadona1)
-    @grupod2 = @registro.donacion.where(
-      '?<=valor AND valor<?', @registro.destacadona2, 
+    @grupod1 = @registro.donacion.where('nombre IN (SELECT nombre FROM
+      (SELECT nombre, sum(valor) FROM donacion 
+        WHERE etapa_id = ? GROUP BY 1) AS s
+      WHERE s.sum>=?)', @registro.id, @registro.destacadona1)
+    @grupod2 = @registro.donacion.where('nombre IN (SELECT nombre FROM
+      (SELECT nombre, sum(valor) FROM donacion 
+        WHERE etapa_id = ? GROUP BY 1) AS s
+      WHERE ? <= s.sum AND s.sum < ?)', @registro.id, @registro.destacadona2, 
       @registro.destacadona1)
-    @grupod3 = @registro.donacion.where(
-      'valor<?', @registro.destacadona2)
+    @grupod3 = @registro.donacion.where('nombre IN (SELECT nombre FROM
+      (SELECT nombre, sum(valor) FROM donacion 
+        WHERE etapa_id = ? GROUP BY 1) AS s
+      WHERE s.sum < ?)', @registro.id, @registro.destacadona2)
     if locale == :en 
       @suma = @suma/ApplicationHelper::DOLAR
       @notas += "Using #{ApplicationHelper::DOLAR} as exchange rate. "
@@ -81,7 +87,7 @@ class EtapasController < Sip::ModelosController
       @notas += "Featured values of donations rounded to 10s. "
       @destacado2 = @registro.destacadona2 / (ApplicationHelper::DOLAR*10)
       @destacado2 = @destacado2.round*10
-      @notas2 = "We receive donations through Paypal and Pasos de Jesús, if you donate please specify 'For Suba Mission' and the name that you want in the application and if you want a dedication"
+      @notas2 = "We receive donations in two ways: (1) Deposito in the checking account 240066712 of 'Iglesia Menonita de Colombia' in Banco de Occidente, or (2)  through the Paypal of 'Pasos de Jesús', if you use paypal please specify 'For Suba Missión' and also the name that you want to appear in this website."
     end
     render layout: 'show'
   end

@@ -26,86 +26,88 @@
   : <%= @porcentaje %>%
 </h1>
 <div class="grancontenedor">
-  <div class="medicion">
-    <div class="pipeta">
-      <div class="vacio"></div>
-      <div class="prestamo"></div>
-      <div class="lleno"></div>
-    </div> <!-- .pipeta-->
-    <div class="e100"> 100</div>
-    <div class="e90">- 90</div>
-    <div class="e80">- 80</div>
-    <div class="e70">- 70</div>
-    <div class="e60">- 60</div>
-    <div class="e50">- 50</div>
-    <div class="e40">- 40</div>
-    <div class="e30">- 30</div>
-    <div class="e20">- 20</div>
-    <div class="e10">- 10</div>
-  </div> <!-- .medicion -->
-  <div class="donantes">
-    <div id="accordion">
-      <div class="card">
-        <div class="card-header" id="headingOne">
-          <h5 class="mb-0">
-            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+  <div class="row">
+    <div class="medicion col-md-6">
+      <div class="pipeta">
+        <div class="vacio"></div>
+        <div class="prestamo"></div>
+        <div class="lleno"></div>
+      </div> <!-- .pipeta-->
+      <div class="e100"> 100</div>
+      <div class="e90">- 90</div>
+      <div class="e80">- 80</div>
+      <div class="e70">- 70</div>
+      <div class="e60">- 60</div>
+      <div class="e50">- 50</div>
+      <div class="e40">- 40</div>
+      <div class="e30">- 30</div>
+      <div class="e20">- 20</div>
+      <div class="e10">- 10</div>
+    </div> <!-- .medicion -->
+    <div class="donantes col-md-6">
+      <div id="accordion">
+        <div class="card">
+          <div class="card-header" id="headingOne">
+            <h5 class="mb-0">
+              <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
                 <%= t('.donaciones_superiores_a') %> 
-              <%= @destacado1 %>
-            </button>
-          </h5>
-        </div> <!-- .card-header -->
-        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
-          <div class="card-body">
-            <% @grupod1.group_by(&:nombre).each do |g| %>
-              <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
+                <%= @destacado1 %>
+              </button>
+            </h5>
+          </div> <!-- .card-header -->
+          <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+            <div class="card-body">
+              <% @grupod1.group_by(&:nombre).each do |g| %>
+                <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
                 <%= nombre_donante(g) %>
-              </p>
-            <% end %>
+                </p>
+              <% end %>
+            </div>
           </div>
-        </div>
-      </div><!-- .card -->
-      <div class="card">
-        <div class="card-header" id="headingTwo">
-          <h5 class="mb-0">
-            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-              <%= t('.donaciones_entre') %>
-              <%= @destacado2 %>
-              <%= t('.y') %>
-              <%= @destacado1 %>
-            </button>
-          </h5>
-        </div>
-        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-          <div class="card-body">
-            <% @grupod2.group_by(&:nombre).each do |g| %>
-              <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
+        </div><!-- .card -->
+        <div class="card">
+          <div class="card-header" id="headingTwo">
+            <h5 class="mb-0">
+              <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                <%= t('.donaciones_entre') %>
+                <%= @destacado2 %>
+                <%= t('.y') %>
+                <%= @destacado1 %>
+              </button>
+            </h5>
+          </div>
+          <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+            <div class="card-body">
+              <% @grupod2.group_by(&:nombre).each do |g| %>
+                <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
                 <%= nombre_donante(g) %>
-              </p>
-            <% end %>
+                </p>
+              <% end %>
+            </div>
           </div>
-        </div>
-      </div><!-- .card -->
-      <div class="card">
-        <div class="card-header" id="headingThree">
-          <h5 class="mb-0">
-            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-              <%= t('.donacionas_hasta') %>
-              <%= @destacado2 %>
-            </button>
-          </h5>
-        </div>
-        <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
-          <div class="card-body">
-            <% @grupod3.group_by(&:nombre).each do |g| %>
-              <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
+        </div><!-- .card -->
+        <div class="card">
+          <div class="card-header" id="headingThree">
+            <h5 class="mb-0">
+              <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                <%= t('.donacionas_hasta') %>
+                <%= @destacado2 %>
+              </button>
+            </h5>
+          </div>
+          <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+            <div class="card-body">
+              <% @grupod3.group_by(&:nombre).each do |g| %>
+                <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
                 <%= nombre_donante(g) %>
-              </p>
-            <% end %>
+                </p>
+              <% end %>
+            </div>
           </div>
-        </div>
-      </div><!-- .card -->
-    </div><!-- #accordion -->
-  </div><!--.donantes-->
+        </div><!-- .card -->
+      </div><!-- #accordion -->
+    </div><!--.donantes-->
+  </div> <!-- row -->
 </div><!--.grancontenedor -->
 <div class="container">
     <div class="row">
@@ -123,7 +125,14 @@
     </div>
     </div>
     <div class="row">
-      <div class='col-xs-5'>
+      <div class='col-xs-2'></div>
+      <div class='col-xs-3'>
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+          <input type="hidden" name="cmd" value="_s-xclick">
+          <input type="hidden" name="hosted_button_id" value="BY2CFLECLP78J">
+          <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+          <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+        </form>
       </div>
       <div class='col-xs-7 notas'>
         <p> <%= @notas %> </p>
