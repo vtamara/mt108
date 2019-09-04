@@ -8,11 +8,16 @@ if (test "${USUARIO_AP}" = "") then {
 	echo "Definir usuario con el que se ejecuta en USUARIO_AP"
 	exit 1;
 } fi;
+if (test "${CONFIG_HOSTS}" = "") then {
+	echo "Definir CONFIG_HOSTS"
+	exit 1;
+} fi;
+
 DOAS=`which doas 2> /dev/null`
 if (test "$?" != "0") then {
 	DOAS="sudo"
 } fi;
-$DOAS su ${USUARIO_AP} -c "cd /var/www/htdocs/mt108; bundle exec rake assets:precompile; echo \"Iniciando unicorn...\"; SECRET_KEY_BASE=${SECRET_KEY_BASE} bundle exec unicorn_rails -c ../mt108/config/unicorn.conf.minimal.rb  -E production -D"
+$DOAS su ${USUARIO_AP} -c "cd /var/www/htdocs/mt108; RAILS_ENV=production bin/rails assets:precompile; echo \"Iniciando unicorn...\"; CONFIG_HOSTS=${CONFIG_HOSTS} SECRET_KEY_BASE=${SECRET_KEY_BASE} bundle exec unicorn_rails -c ../mt108/config/unicorn.conf.minimal.rb  -E production -D"
 
 
   
