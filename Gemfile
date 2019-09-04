@@ -1,10 +1,10 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '~> 2.5.0'
+#ruby '~> 2.5.0'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.2.0'
+gem 'rails', '~> 6.0.0'
 # Use pg as the database for Active Record
 gem 'pg'
 # Use Puma as the app server
@@ -57,7 +57,7 @@ group :test do
 end
 
 # Motor SIP
-gem 'sip', github: 'pasosdeJesus/sip', branch: :con_locale_en_ruta
+gem 'sip', github: 'pasosdeJesus/sip'#, branch: :con_locale_en_ruta
 #gem 'sip', path: '../sip'
 
 # Anexos
@@ -97,7 +97,13 @@ gem 'bootstrap-datepicker-rails'
 gem 'twitter_cldr'               
 
 # Campos de selección más funcionales
-gem 'chosen-rails'               
+gem 'chosen-rails', git: 'https://github.com/vtamara/chosen-rails.git', branch: 'several-fixes'
+
+gem 'webpacker'
+
+# Facilita elegir colores en tema
+gem 'pick-a-color-rails'
+gem 'tiny-color-rails'
 
 # Usamos jquery
 gem 'jquery-rails'               

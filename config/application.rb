@@ -24,5 +24,6 @@ module Mt108
     ActiveRecord::Base.pluralize_table_names=false
     config.railties_order = [:main_app, Sip::Engine, :all]
     config.relative_url_root = "/"
+    config.hosts << ENV['CONFIG_HOSTS'] || '127.0.0.1'
   end
 end
