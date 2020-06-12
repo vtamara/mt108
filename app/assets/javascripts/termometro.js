@@ -4,7 +4,7 @@ function establece_porcentaje(p1, p2) {
   $('.lleno').height(2*p1);  
 }
 
-$( document ).on('turbolinks:load', function() {
+document.addEventListener('turbolinks:load', function() {
   p = window.porcentaje;
   s = window.suma;
   m = window.meta;

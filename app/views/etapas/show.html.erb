@@ -111,13 +111,13 @@
 </div><!--.grancontenedor -->
 <div class="container">
     <div class="row">
-      <div class='col-xs-2'>
+      <div class='col-sm-2'>
       <% if @registro.id > 1 %>
         <%= link_to t('.etapa_anterior'), 
           main_app.etapa_path(@registro.id - 1, locale: locale) %>
       <% end %>
     </div>
-    <div class='col-xs-offset-8 col-xs-2'>
+    <div class='offset-sm-8 col-sm-2'>
       <% if @registro.id < 4 %>
         <%= link_to t('.etapa_siguiente'), 
           main_app.etapa_path(@registro.id + 1, locale: locale) %>
@@ -125,8 +125,8 @@
     </div>
     </div>
     <div class="row">
-      <div class='col-xs-2'></div>
-      <div class='col-xs-3'>
+      <div class='col-sm-2'></div>
+      <div class='col-sm-3'>
         <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
           <input type="hidden" name="cmd" value="_s-xclick">
           <input type="hidden" name="hosted_button_id" value="BY2CFLECLP78J">
@@ -134,7 +134,7 @@
           <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
         </form>
       </div>
-      <div class='col-xs-7 notas'>
+      <div class='col-sm-7 notas'>
         <p> <%= @notas %> </p>
         <p> <%= @notas2 %> </p>
       </div>
