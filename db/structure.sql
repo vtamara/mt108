@@ -578,7 +578,7 @@ CREATE TABLE public.sip_grupoper (
 -- Name: TABLE sip_grupoper; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE public.sip_grupoper IS 'Creado por sip en mt108_development';
+COMMENT ON TABLE public.sip_grupoper IS 'Creado por sip en mt108_production';
 
 
 --
@@ -1076,6 +1076,18 @@ CREATE TABLE public.sip_ubicacion (
     updated_at timestamp without time zone,
     id_pais integer
 );
+
+
+--
+-- Name: sumdon; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.sumdon AS
+ SELECT donacion.nombre,
+    donacion.etapa_id,
+    sum(donacion.valor) AS sum
+   FROM public.donacion
+  GROUP BY donacion.nombre, donacion.etapa_id;
 
 
 --
