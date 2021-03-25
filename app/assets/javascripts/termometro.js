@@ -1,17 +1,25 @@
 function establece_porcentaje(p1, p2) {
-  $('.vacio').height(200-2*(p1+p2));
-  $('.prestamo').height(2*p2);  
-  $('.lleno').height(2*p1);  
+  t1 = Math.round(200-2*(p1+p2));
+  document.getElementById('vacio').setAttribute('style', 'height: ' + t1 + 
+    'px');
+  t2 = Math.round(2*p2);
+  document.getElementById('prestamo').setAttribute('style', 'height: ' + t2 + 
+    'px');
+  t3 = Math.round(2*p1);
+  document.getElementById('lleno').setAttribute('style', 'height: ' + t3 +
+    'px');
 }
 
-document.addEventListener('turbolinks:load', function() {
+//document.addEventListener('turbolinks:load', function() {
+document.addEventListener('DOMContentLoaded', function() {
   p = window.porcentaje;
   s = window.suma;
   m = window.meta;
   pr = window.prestamo;
   for (pi = 20; pi <= 100; pi += 20) {
     v = Math.round(m*pi/100);
-    $('.e' + pi).html('- ' + v);
+    d = document.getElementById('e' + pi);
+    d.innerHtml = '- ' + v;
   }
   console.log('meta=', m);
   console.log('suma=', s);

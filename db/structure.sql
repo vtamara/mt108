@@ -31,6 +31,57 @@ COMMENT ON EXTENSION unaccent IS 'text search dictionary that removes accents';
 
 
 --
+-- Name: completa_obs(character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.completa_obs(obs character varying, nuevaobs character varying) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $$
+      BEGIN
+        RETURN CASE WHEN obs IS NULL THEN nuevaobs
+          WHEN obs='' THEN nuevaobs
+          WHEN RIGHT(obs, 1)='.' THEN obs || ' ' || nuevaobs
+          ELSE obs || '. ' || nuevaobs
+        END;
+      END; $$;
+
+
+--
+-- Name: f_unaccent(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.f_unaccent(text) RETURNS text
+    LANGUAGE sql IMMUTABLE
+    AS $_$
+      SELECT public.unaccent('public.unaccent', $1)  
+      $_$;
+
+
+--
+-- Name: sip_edad_de_fechanac_fecharef(integer, integer, integer, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.sip_edad_de_fechanac_fecharef(anionac integer, mesnac integer, dianac integer, anioref integer, mesref integer, diaref integer) RETURNS integer
+    LANGUAGE sql IMMUTABLE
+    AS $$
+        SELECT CASE 
+          WHEN anionac IS NULL THEN NULL
+          WHEN anioref IS NULL THEN NULL
+          WHEN mesnac IS NULL OR dianac IS NULL OR mesref IS NULL OR diaref IS NULL THEN 
+            anioref-anionac 
+          WHEN mesnac < mesref THEN
+            anioref-anionac
+          WHEN mesnac > mesref THEN
+            anioref-anionac-1
+          WHEN dianac > diaref THEN
+            anioref-anionac-1
+          ELSE 
+            anioref-anionac
+        END 
+      $$;
+
+
+--
 -- Name: soundexesp(text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1079,6 +1130,47 @@ CREATE TABLE public.sip_ubicacion (
 
 
 --
+-- Name: sip_ubicacionpre; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sip_ubicacionpre (
+    id bigint NOT NULL,
+    nombre character varying(2000) NOT NULL COLLATE public.es_co_utf_8,
+    pais_id integer,
+    departamento_id integer,
+    municipio_id integer,
+    clase_id integer,
+    lugar character varying(500),
+    sitio character varying(500),
+    tsitio_id integer,
+    latitud double precision,
+    longitud double precision,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    nombre_sin_pais character varying(500)
+);
+
+
+--
+-- Name: sip_ubicacionpre_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.sip_ubicacionpre_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: sip_ubicacionpre_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.sip_ubicacionpre_id_seq OWNED BY public.sip_ubicacionpre.id;
+
+
+--
 -- Name: sumdon; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -1227,6 +1319,13 @@ ALTER TABLE ONLY public.sip_tema ALTER COLUMN id SET DEFAULT nextval('public.sip
 --
 
 ALTER TABLE ONLY public.sip_trivalente ALTER COLUMN id SET DEFAULT nextval('public.sip_trivalente_id_seq'::regclass);
+
+
+--
+-- Name: sip_ubicacionpre id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_ubicacionpre ALTER COLUMN id SET DEFAULT nextval('public.sip_ubicacionpre_id_seq'::regclass);
 
 
 --
@@ -1446,6 +1545,14 @@ ALTER TABLE ONLY public.sip_trivalente
 
 
 --
+-- Name: sip_ubicacionpre sip_ubicacionpre_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_ubicacionpre
+    ADD CONSTRAINT sip_ubicacionpre_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: sip_tclase tclase_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1550,6 +1657,13 @@ CREATE INDEX sip_busca_mundep ON public.sip_mundep USING gin (mundep);
 
 
 --
+-- Name: sip_nombre_ubicacionpre_b; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX sip_nombre_ubicacionpre_b ON public.sip_ubicacionpre USING gin (to_tsvector('spanish'::regconfig, public.f_unaccent((nombre)::text)));
+
+
+--
 -- Name: unique_schema_migrations; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1602,6 +1716,22 @@ ALTER TABLE ONLY public.donacion
 
 ALTER TABLE ONLY public.sip_bitacora
     ADD CONSTRAINT fk_rails_2db961766c FOREIGN KEY (usuario_id) REFERENCES public.usuario(id);
+
+
+--
+-- Name: sip_ubicacionpre fk_rails_2e86701dfb; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_ubicacionpre
+    ADD CONSTRAINT fk_rails_2e86701dfb FOREIGN KEY (departamento_id) REFERENCES public.sip_departamento(id);
+
+
+--
+-- Name: sip_ubicacionpre fk_rails_3b59c12090; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_ubicacionpre
+    ADD CONSTRAINT fk_rails_3b59c12090 FOREIGN KEY (clase_id) REFERENCES public.sip_clase(id);
 
 
 --
@@ -1701,11 +1831,35 @@ ALTER TABLE ONLY public.sip_ubicacion
 
 
 --
+-- Name: sip_ubicacionpre fk_rails_c08a606417; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_ubicacionpre
+    ADD CONSTRAINT fk_rails_c08a606417 FOREIGN KEY (municipio_id) REFERENCES public.sip_municipio(id);
+
+
+--
+-- Name: sip_ubicacionpre fk_rails_c8024a90df; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_ubicacionpre
+    ADD CONSTRAINT fk_rails_c8024a90df FOREIGN KEY (tsitio_id) REFERENCES public.sip_tsitio(id);
+
+
+--
 -- Name: usuario fk_rails_cc636858ad; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.usuario
     ADD CONSTRAINT fk_rails_cc636858ad FOREIGN KEY (tema_id) REFERENCES public.sip_tema(id);
+
+
+--
+-- Name: sip_ubicacionpre fk_rails_eba8cc9124; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_ubicacionpre
+    ADD CONSTRAINT fk_rails_eba8cc9124 FOREIGN KEY (pais_id) REFERENCES public.sip_pais(id);
 
 
 --
@@ -1894,6 +2048,13 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20191205204511'),
 ('20191219011910'),
 ('20200228235200'),
-('20200319183515');
+('20200319183515'),
+('20200722210144'),
+('20200723133542'),
+('20200907165157'),
+('20200907174303'),
+('20200916022934'),
+('20200919003430'),
+('20201119125643');
 
 

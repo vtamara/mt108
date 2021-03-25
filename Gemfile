@@ -19,9 +19,7 @@ gem 'paperclip'                   # Anexos
 
 gem 'pg'
 
-gem 'puma', '~> 3.11'
-
-gem 'rails', '~> 6.0.0'
+gem 'rails', '~> 6.1'
 
 gem 'rails-i18n'                 # Localización e Internacionalización
 
@@ -40,17 +38,23 @@ gem 'will_paginate'              # Pagina listados
 # En orden apilamiento
 
 gem 'sip',  # Sistema de informacion estilo Pasos de Jesús
-  github: 'pasosdeJesus/sip'#, branch: :con_locale_en_ruta
+  github: 'pasosdeJesus/sip', branch: :main #, branch: :con_locale_en_ruta
   #path: '../sip'
 
 group :development, :test do
   #gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  
   gem 'colorize' # Colores en terminal 
+
+  gem 'dotenv-rails'
 end
 
 group :development do
+  gem 'puma'
+
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
   gem 'web-console', '>= 3.3.0'
+
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
 end
@@ -59,8 +63,6 @@ group :test do
   # Adds support for Capybara system testing and selenium driver
   gem 'capybara', '>= 2.15', '< 4.0'
   gem 'selenium-webdriver'
-  # Easy installation and use of chromedriver to run system tests with Chrome
-  gem 'chromedriver-helper'
 end
 
 group :production do

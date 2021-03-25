@@ -1,11 +1,9 @@
-#encoding: UTF-8 
-
 Sip.setup do |config|
-  config.ruta_anexos = "/var/www/resbase/mt108/anexos/"
-  config.ruta_volcados = "/var/www/resbase/mt108/bd/"
-  # En heroku los anexos son super-temporales
-  if !ENV["HEROKU_POSTGRESQL_GREEN_URL"].nil?
-    config.ruta_anexos = "#{Rails.root}/tmp/"
-  end
+  config.ruta_anexos = ENV.fetch('SIP_RUTA_ANEXOS', 
+                                 "#{Rails.root}/archivos/anexos")
+  config.ruta_volcados = ENV.fetch('SIP_RUTA_VOLCADOS',
+                                   "#{Rails.root}/archivos/bd")
   config.titulo = I18n.t("gen.colecta_para_el_templo_de_la_mision_menonita_de_suba")
+  config.longitud_nusuario = 15
 end
+
