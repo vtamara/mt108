@@ -11,7 +11,7 @@
     "expose-loader": "^0.7.5",
     "is-svg": "^4.2.2",
     "jquery": "^3.4.1",
-    "jquery-ui": "^1.12.1",
+    "jquery-ui": "^1.13.0",
     "pick-a-color": "^1.2.3",
     "popper.js": "^1.16.1",
     "tinycolor2": "^1.4.1",
