@@ -7,6 +7,9 @@ gem 'bootsnap', '>= 1.1.0', require: false
 
 gem 'cancancan'                   # Control de acceso
 
+gem 'cocoon', git: 'https://github.com/vtamara/cocoon.git', 
+  branch: 'new_id_with_ajax' # Formularios anidados (algunos con ajax)
+
 gem 'coffee-rails', '~> 4.2'
 
 gem 'devise'    # Autenticación
