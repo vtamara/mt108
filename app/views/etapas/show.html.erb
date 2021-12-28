@@ -45,67 +45,39 @@
       <div id="e10">- 10</div>
     </div> <!-- .medicion -->
     <div class="donantes col-md-6">
-      <div id="accordion">
-        <div class="card">
-          <div class="card-header" id="headingOne">
-            <h5 class="mb-0">
-              <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                <%= t('.donaciones_superiores_a') %> 
-                <%= @destacado1 %>
-              </button>
-            </h5>
-          </div> <!-- .card-header -->
-          <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
-            <div class="card-body">
-              <% @grupod1.group_by(&:nombre).each do |g| %>
-                <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
-                <%= nombre_donante(g) %>
-                </p>
-              <% end %>
-            </div>
-          </div>
-        </div><!-- .card -->
-        <div class="card">
-          <div class="card-header" id="headingTwo">
-            <h5 class="mb-0">
-              <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                <%= t('.donaciones_entre') %>
-                <%= @destacado2 %>
-                <%= t('.y') %>
-                <%= @destacado1 %>
-              </button>
-            </h5>
-          </div>
-          <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-            <div class="card-body">
-              <% @grupod2.group_by(&:nombre).each do |g| %>
-                <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
-                <%= nombre_donante(g) %>
-                </p>
-              <% end %>
-            </div>
-          </div>
-        </div><!-- .card -->
-        <div class="card">
-          <div class="card-header" id="headingThree">
-            <h5 class="mb-0">
-              <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                <%= t('.donacionas_hasta') %>
-                <%= @destacado2 %>
-              </button>
-            </h5>
-          </div>
-          <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
-            <div class="card-body">
-              <% @grupod3.group_by(&:nombre).each do |g| %>
-                <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
-                <%= nombre_donante(g) %>
-                </p>
-              <% end %>
-            </div>
-          </div>
-        </div><!-- .card -->
-      </div><!-- #accordion -->
+      <div class='accordion' id='acordeon'>
+        <%= item_acordeon_bs(
+          'acordeon', 'acordeon2', 
+          t('.donaciones_superiores_a') + @destacado1.to_s, false) do %>
+          <% @grupod1.group_by(&:nombre).each do |g| %>
+            <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
+            <%= nombre_donante(g) %>
+            </p>
+          <% end %>
+        <% end %> <!-- item_acordeon_bs -->
+
+        <%= item_acordeon_bs(
+          'acordeon', 'acordeon3', 
+          t('.donaciones_entre') + @destacado2.to_s + t('.y') + @destacado1.to_s,
+          false) do %>
+          <% @grupod2.group_by(&:nombre).each do |g| %>
+            <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
+            <%= nombre_donante(g) %>
+            </p>
+          <% end %>
+        <% end %> <!-- item_acordeon_bs -->
+
+        <%= item_acordeon_bs(
+          'acordeon', 'acordeon4', 
+          t('.donaciones_hasta') + @destacado2.to_s,
+          false) do %>
+          <% @grupod3.group_by(&:nombre).each do |g| %>
+            <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
+            <%= nombre_donante(g) %>
+            </p>
+          <% end %>
+        <% end %> <!-- item_acordeon_bs -->
+      </div> <!-- acordeon -->
     </div><!--.donantes-->
   </div> <!-- row -->
 </div><!--.grancontenedor -->

@@ -11,7 +11,7 @@ require 'sip'
 module Mt108
   class Application < Rails::Application
 
-    # config.load_defaults 6.0
+    config.load_defaults 7.0
 
     # Las configuraciones en config/environments/* tiene precedencia sobre
     # las especificadas aquí.
@@ -41,7 +41,9 @@ module Mt108
 
     config.active_record.schema_format = :sql
 
-    config.hosts << ENV.fetch('CONFIG_HOSTS', '127.0.0.1')
+    puts "CONFIG_HOSTS="+ENV.fetch('CONFIG_HOSTS', 'defensor.info').to_s
+    config.hosts.concat(
+      ENV.fetch('CONFIG_HOSTS', 'defensor.info').downcase.split(";"))
 
     #config.web_console.whitelisted_ips = ['186.154.35.237']
 

@@ -33,7 +33,7 @@ if (test "$SININS" != "1") then {
 	NOKOGIRI_USE_SYSTEM_LIBRARIES=1 MAKE=gmake make=gmake QMAKE=qmake4 bundle install
 } fi;
 if (test "$SINMIG" != "1") then {
-	(bundle exec rake db:migrate sip:indices db:structure:dump)
+	(bundle exec rake db:migrate sip:indices db:schema:dump)
 	if (test "$?" != "0") then {
 		exit 1;
 	} fi;
@@ -51,7 +51,7 @@ if (test "$?" != "0") then {
 	exit 1;
 } fi;
 
-RAILS_ENV=test bundle exec rake db:structure:dump
+RAILS_ENV=test bundle exec rake db:schema:dump
 b=`git branch | grep "^*" | sed -e  "s/^* //g"`
 git status -s
 if (test "$MENSCONS" = "") then {

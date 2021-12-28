@@ -4,7 +4,7 @@ class Donacion < ActiveRecord::Base
 	include Sip::Modelo
   include Sip::Localizacion
 
-  belongs_to :etapa
+  belongs_to :etapa, optional: false
 
   campofecha_localizado :fecha
   flotante_localizado   :valor

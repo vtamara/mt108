@@ -18,11 +18,13 @@ gem 'devise-i18n'               # Localización e Internacionalización
 
 gem 'jbuilder', '~> 2.5'
 
+gem 'jsbundling-rails'
+
 gem 'paperclip'                   # Anexos
 
 gem 'pg'
 
-gem 'rails', '~> 6.1'
+gem 'rails', '~> 7.0'
 
 gem 'rails-i18n'                 # Localización e Internacionalización
 
@@ -30,9 +32,9 @@ gem 'sassc-rails'
 
 gem 'simple_form'   # Formularios
 
-gem 'twitter_cldr'               # Localiación e internacionalización
+gem 'sprockets-rails'
 
-gem 'webpacker'
+gem 'twitter_cldr'               # Localiación e internacionalización
 
 gem 'will_paginate'              # Pagina listados
 
@@ -41,11 +43,12 @@ gem 'will_paginate'              # Pagina listados
 # En orden apilamiento
 
 gem 'sip',  # Sistema de informacion estilo Pasos de Jesús
-  github: 'pasosdeJesus/sip', branch: :main #, branch: :con_locale_en_ruta
+  github: 'pasosdeJesus/sip', branch: :rails7jses#, branch: :con_locale_en_ruta
   #path: '../sip'
 
 group :development, :test do
-  #gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  gem 'debug'
+
   gem 'colorize' # Colores en terminal 
 
   gem 'dotenv-rails'
