@@ -48,7 +48,7 @@
       <div class='accordion' id='acordeon'>
         <%= item_acordeon_bs(
           'acordeon', 'acordeon2', 
-          t('.donaciones_superiores_a') + @destacado1.to_s, false) do %>
+          "#{t('.donaciones_superiores_a')} #{@destacado1}", false) do %>
           <% @grupod1.group_by(&:nombre).each do |g| %>
             <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
             <%= nombre_donante(g) %>
@@ -58,7 +58,7 @@
 
         <%= item_acordeon_bs(
           'acordeon', 'acordeon3', 
-          t('.donaciones_entre') + @destacado2.to_s + t('.y') + @destacado1.to_s,
+          "#{t('.donaciones_entre')} #{@destacado2} #{t('.y')} #{@destacado1}",
           false) do %>
           <% @grupod2.group_by(&:nombre).each do |g| %>
             <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>
@@ -69,7 +69,7 @@
 
         <%= item_acordeon_bs(
           'acordeon', 'acordeon4', 
-          t('.donaciones_hasta') + @destacado2.to_s,
+          "#{t('.donaciones_hasta')} #{@destacado2.to_s}",
           false) do %>
           <% @grupod3.group_by(&:nombre).each do |g| %>
             <p data-toogle='tooltip' title='<%= valor_donacion(g) %>'>

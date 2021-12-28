@@ -26,7 +26,7 @@ es:
     show:
       etapa: Etapa
       donaciones_entre: Donaciones entre
-      donacionas_hasta: Donaciones hasta
+      donaciones_hasta: Donaciones hasta
       donaciones_superiores_a: Donaciones superiores a
       etapa_anterior: Etapa anterior
       etapa_siguiente: Etapa siguiente
