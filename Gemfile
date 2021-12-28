@@ -43,7 +43,6 @@ gem 'sip',  # Sistema de informacion estilo Pasos de Jesús
 
 group :development, :test do
   #gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
-  
   gem 'colorize' # Colores en terminal 
 
   gem 'dotenv-rails'
