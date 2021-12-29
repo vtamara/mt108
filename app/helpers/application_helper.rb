@@ -1,3 +1,3 @@
 module ApplicationHelper
-  DOLAR=2800
+  DOLAR=4000
 end

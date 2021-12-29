@@ -14,21 +14,25 @@
   border: 1px solid;
   width:10px;
   border-radius: 10px;
-  height: 210px;
+  height: 212px;
 }
+
 #vacio {
   height: 95px;
 }
+
 #prestamo{
   height: 10px;
   background-color: orange;
 }
+
 #lleno {
   height: 95px;
   background-color: red;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
 }
+
 #e100 {
   position: absolute;
   left: 20px;

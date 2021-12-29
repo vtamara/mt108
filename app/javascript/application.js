@@ -29,16 +29,23 @@ import 'bootstrap-datepicker'
 import 'bootstrap-datepicker/dist/locales/bootstrap-datepicker.es.min.js'
 
 
-function establece_porcentaje(p1, p2) {
-  t1 = Math.round(200-2*(p1+p2))+10;
+function establecePorcentaje(p1, p2, meta, suma, prestamo, vacio) {
+  t1 = Math.round(200-2*(p1+p2))+10
   document.getElementById('vacio').setAttribute('style', 'height: ' + t1 + 
-    'px');
-  t2 = Math.round(2*p2);
+    'px')
+  
+  document.getElementById('vacio').setAttribute('title', vacio);
+
+  t2 = Math.round(2*p2)
   document.getElementById('prestamo').setAttribute('style', 'height: ' + t2 + 
-    'px');
+    'px')
+  document.getElementById('prestamo').setAttribute('title', prestamo-suma);
+
   t3 = Math.round(2*p1);
   document.getElementById('lleno').setAttribute('style', 'height: ' + t3 +
     'px');
+  document.getElementById('lleno').setAttribute('title', suma);
+  document.getElementById('e100').setAttribute('title', meta);
 }
 
 //document.addEventListener('turbolinks:load', function() {
@@ -58,5 +65,5 @@ document.addEventListener('turbolinks:load', function() {
   console.log('porcentaje=', p);
   p2 = pr > s ? pr - s : 0
   p2 = Math.round(p2*100/m)
-  establece_porcentaje(p, p2);
+  establecePorcentaje(p, p2, m, s, pr, m-s-pr);
 })
