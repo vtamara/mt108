@@ -3,6 +3,8 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 #ruby '~> 2.5.0'
 
+gem 'babel-transpiler'
+
 gem 'bootsnap', '>= 1.1.0', require: false
 
 gem 'cancancan'                   # Control de acceso
@@ -34,6 +36,10 @@ gem 'simple_form'   # Formularios
 
 gem 'sprockets-rails'
 
+gem 'stimulus-rails'
+
+gem 'turbo-rails'
+
 gem 'twitter_cldr'               # Localiación e internacionalización
 
 gem 'will_paginate'              # Pagina listados
@@ -43,7 +49,7 @@ gem 'will_paginate'              # Pagina listados
 # En orden apilamiento
 
 gem 'sip',  # Sistema de informacion estilo Pasos de Jesús
-  github: 'pasosdeJesus/sip', branch: :rails7jses#, branch: :con_locale_en_ruta
+  github: 'pasosdeJesus/sip', branch: :main
   #path: '../sip'
 
 group :development, :test do
@@ -65,6 +71,8 @@ group :development do
 end
 
 group :test do
+  gem 'cuprite'
+
   # Adds support for Capybara system testing and selenium driver
   gem 'capybara', '>= 2.15', '< 4.0'
   gem 'selenium-webdriver'
