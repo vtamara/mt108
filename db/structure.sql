@@ -24,6 +24,13 @@ CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA public;
 
 
 --
+-- Name: EXTENSION unaccent; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION unaccent IS 'text search dictionary that removes accents';
+
+
+--
 -- Name: completa_obs(character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -57,130 +64,169 @@ CREATE FUNCTION public.f_unaccent(text) RETURNS text
 CREATE FUNCTION public.sip_edad_de_fechanac_fecharef(anionac integer, mesnac integer, dianac integer, anioref integer, mesref integer, diaref integer) RETURNS integer
     LANGUAGE sql IMMUTABLE
     AS $$
-        SELECT CASE 
-          WHEN anionac IS NULL THEN NULL
-          WHEN anioref IS NULL THEN NULL
-          WHEN mesnac IS NULL OR dianac IS NULL OR mesref IS NULL OR diaref IS NULL THEN 
-            anioref-anionac 
-          WHEN mesnac < mesref THEN
-            anioref-anionac
-          WHEN mesnac > mesref THEN
-            anioref-anionac-1
-          WHEN dianac > diaref THEN
-            anioref-anionac-1
-          ELSE 
-            anioref-anionac
-        END 
-      $$;
+            SELECT CASE 
+              WHEN anionac IS NULL THEN NULL
+              WHEN anioref IS NULL THEN NULL
+              WHEN anioref < anionac THEN -1
+              WHEN mesnac IS NOT NULL AND mesnac > 0 
+                AND mesref IS NOT NULL AND mesref > 0 
+                AND mesnac >= mesref THEN
+                CASE 
+                  WHEN mesnac > mesref OR (dianac IS NOT NULL 
+                    AND dianac > 0 AND diaref IS NOT NULL 
+                    AND diaref > 0 AND dianac > diaref) THEN 
+                    anioref-anionac-1
+                  ELSE 
+                    anioref-anionac
+                END
+              ELSE
+                anioref-anionac
+            END 
+          $$;
 
 
 --
 -- Name: soundexesp(text); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.soundexesp(input text) RETURNS text
+CREATE FUNCTION public.soundexesp(entrada text) RETURNS text
     LANGUAGE plpgsql IMMUTABLE STRICT COST 500
     AS $$
-DECLARE
-	-- Función tomada de http://wiki.postgresql.org/wiki/SoundexESP
-	soundex text='';	
-	-- para determinar la primera letra
-	pri_letra text;
-	resto text;
-	sustituida text ='';
-	-- para quitar adyacentes
-	anterior text;
-	actual text;
-	corregido text;
-BEGIN
-       -- devolver null si recibi un string en blanco o con espacios en blanco
-	IF length(trim(input))= 0 then
-		RETURN NULL;
-	end IF;
- 
- 
-	-- 1: LIMPIEZA:
-		-- pasar a mayuscula, eliminar la letra "H" inicial, los acentos y la enie
-		-- 'holá coñó' => 'OLA CONO'
-		input=translate(ltrim(trim(upper(input)),'H'),'ÑÁÉÍÓÚÀÈÌÒÙÜ','NAEIOUAEIOUU');
- 
-		-- eliminar caracteres no alfabéticos (números, símbolos como &,%,",*,!,+, etc.
-		input=regexp_replace(input, '[^a-zA-Z]', '', 'g');
- 
-	-- 2: PRIMERA LETRA ES IMPORTANTE, DEBO ASOCIAR LAS SIMILARES
-	--  'vaca' se convierte en 'baca'  y 'zapote' se convierte en 'sapote'
-	-- un fenomeno importante es GE y GI se vuelven JE y JI; CA se vuelve KA, etc
-	pri_letra =substr(input,1,1);
-	resto =substr(input,2);
-	CASE 
-		when pri_letra IN ('V') then
-			sustituida='B';
-		when pri_letra IN ('Z','X') then
-			sustituida='S';
-		when pri_letra IN ('G') AND substr(input,2,1) IN ('E','I') then
-			sustituida='J';
-		when pri_letra IN('C') AND substr(input,2,1) NOT IN ('H','E','I') then
-			sustituida='K';
-		else
-			sustituida=pri_letra;
- 
-	end case;
-	--corregir el parametro con las consonantes sustituidas:
-	input=sustituida || resto;		
- 
-	-- 3: corregir "letras compuestas" y volverlas una sola
-	input=REPLACE(input,'CH','V');
-	input=REPLACE(input,'QU','K');
-	input=REPLACE(input,'LL','J');
-	input=REPLACE(input,'CE','S');
-	input=REPLACE(input,'CI','S');
-	input=REPLACE(input,'YA','J');
-	input=REPLACE(input,'YE','J');
-	input=REPLACE(input,'YI','J');
-	input=REPLACE(input,'YO','J');
-	input=REPLACE(input,'YU','J');
-	input=REPLACE(input,'GE','J');
-	input=REPLACE(input,'GI','J');
-	input=REPLACE(input,'NY','N');
-	-- para debug:    --return input;
- 
-	-- EMPIEZA EL CALCULO DEL SOUNDEX
-	-- 4: OBTENER PRIMERA letra
-	pri_letra=substr(input,1,1);
- 
-	-- 5: retener el resto del string
-	resto=substr(input,2);
- 
-	--6: en el resto del string, quitar vocales y vocales fonéticas
-	resto=translate(resto,'@AEIOUHWY','@');
- 
-	--7: convertir las letras foneticamente equivalentes a numeros  (esto hace que B sea equivalente a V, C con S y Z, etc.)
-	resto=translate(resto, 'BPFVCGKSXZDTLMNRQJ', '111122222233455677');
-	-- así va quedando la cosa
-	soundex=pri_letra || resto;
- 
-	--8: eliminar números iguales adyacentes (A11233 se vuelve A123)
-	anterior=substr(soundex,1,1);
-	corregido=anterior;
- 
-	FOR i IN 2 .. length(soundex) LOOP
-		actual = substr(soundex, i, 1);
-		IF actual <> anterior THEN
-			corregido=corregido || actual;
-			anterior=actual;			
-		END IF;
-	END LOOP;
-	-- así va la cosa
-	soundex=corregido;
- 
-	-- 9: siempre retornar un string de 4 posiciones
-	soundex=rpad(soundex,4,'0');
-	soundex=substr(soundex,1,4);		
- 
-	-- YA ESTUVO
-	RETURN soundex;	
-END;	
-$$;
+      DECLARE
+      	soundex text='';	
+      	-- para determinar la primera letra
+      	pri_letra text;
+      	resto text;
+      	sustituida text ='';
+      	-- para quitar adyacentes
+      	anterior text;
+      	actual text;
+      	corregido text;
+      BEGIN
+        --raise notice 'entrada=%', entrada;
+        -- devolver null si recibi un string en blanco o con espacios en blanco
+        IF length(trim(entrada))= 0 then
+              RETURN NULL;
+        END IF;
+
+
+      	-- 1: LIMPIEZA:
+      		-- pasar a mayuscula, eliminar la letra "H" inicial, los acentos y la enie
+      		-- 'holá coñó' => 'OLA CONO'
+      		entrada=translate(ltrim(trim(upper(entrada)),'H'),'ÑÁÉÍÓÚÀÈÌÒÙÜ','NAEIOUAEIOUU');
+
+        IF array_upper(regexp_split_to_array(entrada, '[^a-zA-Z]'), 1) > 1 THEN
+          RAISE NOTICE 'Esta función sólo maneja una palabra y no ''%''. Use más bien soundexespm', entrada;
+      		RETURN NULL;
+        END IF;
+
+      	-- 2: PRIMERA LETRA ES IMPORTANTE, DEBO ASOCIAR LAS SIMILARES
+      	--  'vaca' se convierte en 'baca'  y 'zapote' se convierte en 'sapote'
+      	-- un fenomeno importante es GE y GI se vuelven JE y JI; CA se vuelve KA, etc
+      	pri_letra =substr(entrada,1,1);
+      	resto =substr(entrada,2);
+      	CASE
+      		when pri_letra IN ('V') then
+      			sustituida='B';
+      		when pri_letra IN ('Z','X') then
+      			sustituida='S';
+      		when pri_letra IN ('G') AND substr(entrada,2,1) IN ('E','I') then
+      			sustituida='J';
+      		when pri_letra IN('C') AND substr(entrada,2,1) NOT IN ('H','E','I') then
+      			sustituida='K';
+      		else
+      			sustituida=pri_letra;
+
+      	end case;
+      	--corregir el parámetro con las consonantes sustituidas:
+      	entrada=sustituida || resto;		
+        --raise notice 'entrada tras cambios en primera letra %', entrada;
+
+      	-- 3: corregir "letras compuestas" y volverlas una sola
+      	entrada=REPLACE(entrada,'CH','V');
+      	entrada=REPLACE(entrada,'QU','K');
+      	entrada=REPLACE(entrada,'LL','J');
+      	entrada=REPLACE(entrada,'CE','S');
+      	entrada=REPLACE(entrada,'CI','S');
+      	entrada=REPLACE(entrada,'YA','J');
+      	entrada=REPLACE(entrada,'YE','J');
+      	entrada=REPLACE(entrada,'YI','J');
+      	entrada=REPLACE(entrada,'YO','J');
+      	entrada=REPLACE(entrada,'YU','J');
+      	entrada=REPLACE(entrada,'GE','J');
+      	entrada=REPLACE(entrada,'GI','J');
+      	entrada=REPLACE(entrada,'NY','N');
+      	-- para debug:    --return entrada;
+        --raise notice 'entrada tras cambiar letras compuestas %', entrada;
+
+      	-- EMPIEZA EL CALCULO DEL SOUNDEX
+      	-- 4: OBTENER PRIMERA letra
+      	pri_letra=substr(entrada,1,1);
+
+      	-- 5: retener el resto del string
+      	resto=substr(entrada,2);
+
+      	--6: en el resto del string, quitar vocales y vocales fonéticas
+      	resto=translate(resto,'@AEIOUHWY','@');
+
+      	--7: convertir las letras foneticamente equivalentes a numeros  (esto hace que B sea equivalente a V, C con S y Z, etc.)
+      	resto=translate(resto, 'BPFVCGKSXZDTLMNRQJ', '111122222233455677');
+      	-- así va quedando la cosa
+      	soundex=pri_letra || resto;
+
+      	--8: eliminar números iguales adyacentes (A11233 se vuelve A123)
+      	anterior=substr(soundex,1,1);
+      	corregido=anterior;
+
+      	FOR i IN 2 .. length(soundex) LOOP
+      		actual = substr(soundex, i, 1);
+      		IF actual <> anterior THEN
+      			corregido=corregido || actual;
+      			anterior=actual;			
+      		END IF;
+      	END LOOP;
+      	-- así va la cosa
+      	soundex=corregido;
+
+      	-- 9: siempre retornar un string de 4 posiciones
+      	soundex=rpad(soundex,4,'0');
+      	soundex=substr(soundex,1,4);		
+
+      	-- YA ESTUVO
+      	RETURN soundex;	
+      END;	
+      $$;
+
+
+--
+-- Name: soundexespm(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.soundexespm(entrada text) RETURNS text
+    LANGUAGE plpgsql IMMUTABLE STRICT COST 500
+    AS $$
+      DECLARE
+        soundex text = '' ;
+        partes text[];
+        sep text = '';
+        se text = '';
+      BEGIN
+        entrada=translate(ltrim(trim(upper(entrada)),'H'),'ÑÁÉÍÓÚÀÈÌÒÙÜ','NAEIOUAEIOUU');
+        partes=regexp_split_to_array(entrada, '[^a-zA-Z]');
+
+        --raise notice 'partes=%', partes;
+        FOR i IN 1 .. array_upper(partes, 1) LOOP
+          se = soundexesp(partes[i]);
+          IF length(se) > 0 THEN
+            soundex = soundex || sep || se;
+            sep = ' ';
+            --raise notice 'i=% . soundexesp=%', i, se;
+          END IF;
+        END LOOP;
+
+      	RETURN soundex;	
+      END;	
+      $$;
 
 
 SET default_tablespace = '';
@@ -384,8 +430,45 @@ CREATE TABLE public.sip_clase (
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
     observaciones character varying(5000) COLLATE public.es_co_utf_8,
+    ultvigenciaini date,
+    ultvigenciafin date,
     CONSTRAINT clase_check CHECK (((fechadeshabilitacion IS NULL) OR (fechadeshabilitacion >= fechacreacion)))
 );
+
+
+--
+-- Name: sip_clase_histvigencia; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sip_clase_histvigencia (
+    id bigint NOT NULL,
+    clase_id integer,
+    vigenciaini date,
+    vigenciafin date NOT NULL,
+    nombre character varying(256),
+    id_clalocal integer,
+    id_tclase character varying,
+    observaciones character varying(5000)
+);
+
+
+--
+-- Name: sip_clase_histvigencia_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.sip_clase_histvigencia_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: sip_clase_histvigencia_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.sip_clase_histvigencia_id_seq OWNED BY public.sip_clase_histvigencia.id;
 
 
 --
@@ -416,8 +499,84 @@ CREATE TABLE public.sip_departamento (
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
     observaciones character varying(5000) COLLATE public.es_co_utf_8,
+    codiso character varying(6),
+    catiso character varying(64),
+    codreg integer,
+    ultvigenciaini date,
+    ultvigenciafin date,
     CONSTRAINT departamento_check CHECK (((fechadeshabilitacion IS NULL) OR (fechadeshabilitacion >= fechacreacion)))
 );
+
+
+--
+-- Name: sip_departamento_histvigencia; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sip_departamento_histvigencia (
+    id bigint NOT NULL,
+    departamento_id integer,
+    vigenciaini date,
+    vigenciafin date NOT NULL,
+    nombre character varying(256),
+    id_deplocal integer,
+    codiso integer,
+    catiso integer,
+    codreg integer,
+    observaciones character varying(5000)
+);
+
+
+--
+-- Name: sip_departamento_histvigencia_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.sip_departamento_histvigencia_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: sip_departamento_histvigencia_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.sip_departamento_histvigencia_id_seq OWNED BY public.sip_departamento_histvigencia.id;
+
+
+--
+-- Name: sip_estadosol; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sip_estadosol (
+    id bigint NOT NULL,
+    nombre character varying(500) NOT NULL COLLATE public.es_co_utf_8,
+    observaciones character varying(5000),
+    fechacreacion date NOT NULL,
+    fechadeshabilitacion date,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: sip_estadosol_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.sip_estadosol_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: sip_estadosol_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.sip_estadosol_id_seq OWNED BY public.sip_estadosol.id;
 
 
 --
@@ -548,6 +707,13 @@ CREATE TABLE public.sip_grupoper (
 
 
 --
+-- Name: TABLE sip_grupoper; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.sip_grupoper IS 'Creado por sip en mt108_development';
+
+
+--
 -- Name: sip_grupoper_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -594,6 +760,10 @@ CREATE TABLE public.sip_municipio (
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
     observaciones character varying(5000) COLLATE public.es_co_utf_8,
+    codreg integer,
+    ultvigenciaini date,
+    ultvigenciafin date,
+    tipomun character varying(32),
     CONSTRAINT municipio_check CHECK (((fechadeshabilitacion IS NULL) OR (fechadeshabilitacion >= fechacreacion)))
 );
 
@@ -626,6 +796,41 @@ CREATE MATERIALIZED VIEW public.sip_mundep AS
    FROM public.sip_mundep_sinorden
   ORDER BY (sip_mundep_sinorden.nombre COLLATE public.es_co_utf_8)
   WITH NO DATA;
+
+
+--
+-- Name: sip_municipio_histvigencia; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sip_municipio_histvigencia (
+    id bigint NOT NULL,
+    municipio_id integer,
+    vigenciaini date,
+    vigenciafin date NOT NULL,
+    nombre character varying(256),
+    id_munlocal integer,
+    observaciones character varying(5000),
+    codreg integer
+);
+
+
+--
+-- Name: sip_municipio_histvigencia_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.sip_municipio_histvigencia_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: sip_municipio_histvigencia_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.sip_municipio_histvigencia_id_seq OWNED BY public.sip_municipio_histvigencia.id;
 
 
 --
@@ -670,7 +875,8 @@ CREATE TABLE public.sip_orgsocial (
     web character varying(500),
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    fechadeshabilitacion date
+    fechadeshabilitacion date,
+    tipoorg_id integer DEFAULT 2 NOT NULL
 );
 
 
@@ -757,7 +963,7 @@ CREATE SEQUENCE public.sip_pais_id_seq
 CREATE TABLE public.sip_pais (
     id integer DEFAULT nextval('public.sip_pais_id_seq'::regclass) NOT NULL,
     nombre character varying(200) COLLATE public.es_co_utf_8,
-    nombreiso character varying(200),
+    nombreiso_espanol character varying(200),
     latitud double precision,
     longitud double precision,
     alfa2 character varying(2),
@@ -770,8 +976,47 @@ CREATE TABLE public.sip_pais (
     fechadeshabilitacion date,
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
-    observaciones character varying(5000) COLLATE public.es_co_utf_8
+    observaciones character varying(5000) COLLATE public.es_co_utf_8,
+    nombreiso_ingles character varying(512),
+    nombreiso_frances character varying(512),
+    ultvigenciaini date,
+    ultvigenciafin date
 );
+
+
+--
+-- Name: sip_pais_histvigencia; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sip_pais_histvigencia (
+    id bigint NOT NULL,
+    pais_id integer,
+    vigenciaini date,
+    vigenciafin date NOT NULL,
+    codiso integer,
+    alfa2 character varying(2),
+    alfa3 character varying(3),
+    codcambio character varying(4)
+);
+
+
+--
+-- Name: sip_pais_histvigencia_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.sip_pais_histvigencia_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: sip_pais_histvigencia_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.sip_pais_histvigencia_id_seq OWNED BY public.sip_pais_histvigencia.id;
 
 
 --
@@ -909,6 +1154,50 @@ ALTER SEQUENCE public.sip_sectororgsocial_id_seq OWNED BY public.sip_sectororgso
 
 
 --
+-- Name: sip_solicitud; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sip_solicitud (
+    id bigint NOT NULL,
+    usuario_id integer NOT NULL,
+    fecha date NOT NULL,
+    solicitud character varying(5000),
+    estadosol_id integer,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: sip_solicitud_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.sip_solicitud_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: sip_solicitud_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.sip_solicitud_id_seq OWNED BY public.sip_solicitud.id;
+
+
+--
+-- Name: sip_solicitud_usuarionotificar; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sip_solicitud_usuarionotificar (
+    usuarionotificar_id integer,
+    solicitud_id integer
+);
+
+
+--
 -- Name: sip_tclase; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -937,7 +1226,8 @@ CREATE TABLE public.sip_tdocumento (
     fechadeshabilitacion date,
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
-    observaciones character varying(5000) COLLATE public.es_co_utf_8
+    observaciones character varying(5000) COLLATE public.es_co_utf_8,
+    ayuda character varying(1000)
 );
 
 
@@ -1013,6 +1303,40 @@ CREATE SEQUENCE public.sip_tema_id_seq
 --
 
 ALTER SEQUENCE public.sip_tema_id_seq OWNED BY public.sip_tema.id;
+
+
+--
+-- Name: sip_tipoorg; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sip_tipoorg (
+    id bigint NOT NULL,
+    nombre character varying(500) NOT NULL COLLATE public.es_co_utf_8,
+    observaciones character varying(5000),
+    fechacreacion date NOT NULL,
+    fechadeshabilitacion date,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: sip_tipoorg_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.sip_tipoorg_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: sip_tipoorg_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.sip_tipoorg_id_seq OWNED BY public.sip_tipoorg.id;
 
 
 --
@@ -1168,6 +1492,44 @@ ALTER SEQUENCE public.sip_ubicacionpre_id_seq OWNED BY public.sip_ubicacionpre.i
 
 
 --
+-- Name: sip_vereda; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sip_vereda (
+    id bigint NOT NULL,
+    nombre character varying(500) NOT NULL COLLATE public.es_co_utf_8,
+    municipio_id integer,
+    verlocal_id integer,
+    observaciones character varying(5000),
+    latitud double precision,
+    longitud double precision,
+    fechacreacion date NOT NULL,
+    fechadeshabilitacion date,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: sip_vereda_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.sip_vereda_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: sip_vereda_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.sip_vereda_id_seq OWNED BY public.sip_vereda.id;
+
+
+--
 -- Name: usuario_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -1237,6 +1599,27 @@ ALTER TABLE ONLY public.sip_bitacora ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
+-- Name: sip_clase_histvigencia id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_clase_histvigencia ALTER COLUMN id SET DEFAULT nextval('public.sip_clase_histvigencia_id_seq'::regclass);
+
+
+--
+-- Name: sip_departamento_histvigencia id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_departamento_histvigencia ALTER COLUMN id SET DEFAULT nextval('public.sip_departamento_histvigencia_id_seq'::regclass);
+
+
+--
+-- Name: sip_estadosol id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_estadosol ALTER COLUMN id SET DEFAULT nextval('public.sip_estadosol_id_seq'::regclass);
+
+
+--
 -- Name: sip_fuenteprensa id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1258,6 +1641,13 @@ ALTER TABLE ONLY public.sip_grupoper ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
+-- Name: sip_municipio_histvigencia id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_municipio_histvigencia ALTER COLUMN id SET DEFAULT nextval('public.sip_municipio_histvigencia_id_seq'::regclass);
+
+
+--
 -- Name: sip_orgsocial id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1269,6 +1659,13 @@ ALTER TABLE ONLY public.sip_orgsocial ALTER COLUMN id SET DEFAULT nextval('publi
 --
 
 ALTER TABLE ONLY public.sip_orgsocial_persona ALTER COLUMN id SET DEFAULT nextval('public.sip_orgsocial_persona_id_seq'::regclass);
+
+
+--
+-- Name: sip_pais_histvigencia id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_pais_histvigencia ALTER COLUMN id SET DEFAULT nextval('public.sip_pais_histvigencia_id_seq'::regclass);
 
 
 --
@@ -1286,6 +1683,13 @@ ALTER TABLE ONLY public.sip_sectororgsocial ALTER COLUMN id SET DEFAULT nextval(
 
 
 --
+-- Name: sip_solicitud id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_solicitud ALTER COLUMN id SET DEFAULT nextval('public.sip_solicitud_id_seq'::regclass);
+
+
+--
 -- Name: sip_tdocumento id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1300,6 +1704,13 @@ ALTER TABLE ONLY public.sip_tema ALTER COLUMN id SET DEFAULT nextval('public.sip
 
 
 --
+-- Name: sip_tipoorg id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_tipoorg ALTER COLUMN id SET DEFAULT nextval('public.sip_tipoorg_id_seq'::regclass);
+
+
+--
 -- Name: sip_trivalente id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1311,6 +1722,13 @@ ALTER TABLE ONLY public.sip_trivalente ALTER COLUMN id SET DEFAULT nextval('publ
 --
 
 ALTER TABLE ONLY public.sip_ubicacionpre ALTER COLUMN id SET DEFAULT nextval('public.sip_ubicacionpre_id_seq'::regclass);
+
+
+--
+-- Name: sip_vereda id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_vereda ALTER COLUMN id SET DEFAULT nextval('public.sip_vereda_id_seq'::regclass);
 
 
 --
@@ -1402,6 +1820,30 @@ ALTER TABLE ONLY public.sip_bitacora
 
 
 --
+-- Name: sip_clase_histvigencia sip_clase_histvigencia_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_clase_histvigencia
+    ADD CONSTRAINT sip_clase_histvigencia_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sip_clase sip_clase_id_municipio_id_clalocal_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_clase
+    ADD CONSTRAINT sip_clase_id_municipio_id_clalocal_key UNIQUE (id_municipio, id_clalocal);
+
+
+--
+-- Name: sip_departamento_histvigencia sip_departamento_histvigencia_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_departamento_histvigencia
+    ADD CONSTRAINT sip_departamento_histvigencia_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: sip_departamento sip_departamento_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1410,11 +1852,11 @@ ALTER TABLE ONLY public.sip_departamento
 
 
 --
--- Name: sip_departamento sip_departamento_id_pais_id_deplocal_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: sip_departamento sip_departamento_id_pais_id_deplocal_unico; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.sip_departamento
-    ADD CONSTRAINT sip_departamento_id_pais_id_deplocal_key UNIQUE (id_pais, id_deplocal);
+    ADD CONSTRAINT sip_departamento_id_pais_id_deplocal_unico UNIQUE (id_pais, id_deplocal);
 
 
 --
@@ -1423,6 +1865,14 @@ ALTER TABLE ONLY public.sip_departamento
 
 ALTER TABLE ONLY public.sip_departamento
     ADD CONSTRAINT sip_departamento_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sip_estadosol sip_estadosol_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_estadosol
+    ADD CONSTRAINT sip_estadosol_pkey PRIMARY KEY (id);
 
 
 --
@@ -1450,6 +1900,22 @@ ALTER TABLE ONLY public.sip_grupoper
 
 
 --
+-- Name: sip_municipio_histvigencia sip_municipio_histvigencia_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_municipio_histvigencia
+    ADD CONSTRAINT sip_municipio_histvigencia_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sip_municipio sip_municipio_id_departamento_id_munlocal_unico; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_municipio
+    ADD CONSTRAINT sip_municipio_id_departamento_id_munlocal_unico UNIQUE (id_departamento, id_munlocal);
+
+
+--
 -- Name: sip_orgsocial_persona sip_orgsocial_persona_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1463,6 +1929,22 @@ ALTER TABLE ONLY public.sip_orgsocial_persona
 
 ALTER TABLE ONLY public.sip_orgsocial
     ADD CONSTRAINT sip_orgsocial_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sip_pais sip_pais_codiso_unico; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_pais
+    ADD CONSTRAINT sip_pais_codiso_unico UNIQUE (codiso);
+
+
+--
+-- Name: sip_pais_histvigencia sip_pais_histvigencia_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_pais_histvigencia
+    ADD CONSTRAINT sip_pais_histvigencia_pkey PRIMARY KEY (id);
 
 
 --
@@ -1514,11 +1996,27 @@ ALTER TABLE ONLY public.sip_sectororgsocial
 
 
 --
+-- Name: sip_solicitud sip_solicitud_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_solicitud
+    ADD CONSTRAINT sip_solicitud_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: sip_tema sip_tema_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.sip_tema
     ADD CONSTRAINT sip_tema_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sip_tipoorg sip_tipoorg_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_tipoorg
+    ADD CONSTRAINT sip_tipoorg_pkey PRIMARY KEY (id);
 
 
 --
@@ -1535,6 +2033,14 @@ ALTER TABLE ONLY public.sip_trivalente
 
 ALTER TABLE ONLY public.sip_ubicacionpre
     ADD CONSTRAINT sip_ubicacionpre_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sip_vereda sip_vereda_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_vereda
+    ADD CONSTRAINT sip_vereda_pkey PRIMARY KEY (id);
 
 
 --
@@ -1597,6 +2103,20 @@ CREATE INDEX index_sip_orgsocial_on_grupoper_id ON public.sip_orgsocial USING bt
 --
 
 CREATE INDEX index_sip_orgsocial_on_pais_id ON public.sip_orgsocial USING btree (pais_id);
+
+
+--
+-- Name: index_sip_solicitud_usuarionotificar_on_solicitud_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_sip_solicitud_usuarionotificar_on_solicitud_id ON public.sip_solicitud_usuarionotificar USING btree (solicitud_id);
+
+
+--
+-- Name: index_sip_solicitud_usuarionotificar_on_usuarionotificar_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_sip_solicitud_usuarionotificar_on_usuarionotificar_id ON public.sip_solicitud_usuarionotificar USING btree (usuarionotificar_id);
 
 
 --
@@ -1774,6 +2294,14 @@ ALTER TABLE ONLY public.sip_orgsocial
 
 
 --
+-- Name: sip_solicitud_usuarionotificar fk_rails_6296c40917; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_solicitud_usuarionotificar
+    ADD CONSTRAINT fk_rails_6296c40917 FOREIGN KEY (solicitud_id) REFERENCES public.sip_solicitud(id);
+
+
+--
 -- Name: sip_ubicacion fk_rails_6ed05ed576; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1838,6 +2366,14 @@ ALTER TABLE ONLY public.sip_ubicacion
 
 
 --
+-- Name: sip_solicitud fk_rails_a670d661ef; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_solicitud
+    ADD CONSTRAINT fk_rails_a670d661ef FOREIGN KEY (usuario_id) REFERENCES public.usuario(id);
+
+
+--
 -- Name: sip_ubicacion fk_rails_b82283d945; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1870,6 +2406,14 @@ ALTER TABLE ONLY public.usuario
 
 
 --
+-- Name: sip_solicitud_usuarionotificar fk_rails_db0f7c1dd6; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_solicitud_usuarionotificar
+    ADD CONSTRAINT fk_rails_db0f7c1dd6 FOREIGN KEY (usuarionotificar_id) REFERENCES public.usuario(id);
+
+
+--
 -- Name: sip_ubicacionpre fk_rails_eba8cc9124; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1891,6 +2435,14 @@ ALTER TABLE ONLY public.sip_orgsocial_sectororgsocial
 
 ALTER TABLE ONLY public.sip_clase
     ADD CONSTRAINT fk_rails_fb09f016e4 FOREIGN KEY (id_municipio) REFERENCES public.sip_municipio(id);
+
+
+--
+-- Name: sip_solicitud fk_rails_ffa31a0de6; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sip_solicitud
+    ADD CONSTRAINT fk_rails_ffa31a0de6 FOREIGN KEY (estadosol_id) REFERENCES public.sip_estadosol(id);
 
 
 --
@@ -2072,14 +2624,48 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200916022934'),
 ('20200919003430'),
 ('20201119125643'),
+('20201124035715'),
+('20201124050637'),
+('20201124142002'),
+('20201124145625'),
 ('20210401194637'),
 ('20210401210102'),
 ('20210414201956'),
 ('20210614120835'),
 ('20210616003251'),
 ('20210728214424'),
+('20211010164634'),
 ('20211024105450'),
 ('20211117200456'),
-('20211216125250');
+('20211216125250'),
+('20220213031520'),
+('20220214121713'),
+('20220214232150'),
+('20220215095957'),
+('20220413123127'),
+('20220417203841'),
+('20220417220914'),
+('20220417221010'),
+('20220420143020'),
+('20220420154535'),
+('20220422190546'),
+('20220428145059'),
+('20220613224844'),
+('20220713200101'),
+('20220713200444'),
+('20220714191500'),
+('20220714191505'),
+('20220714191510'),
+('20220714191555'),
+('20220719111148'),
+('20220721170452'),
+('20220721200858'),
+('20220722000850'),
+('20220722192214'),
+('20220805181901'),
+('20220822132754'),
+('20221102144613'),
+('20221102145906'),
+('20221118032223');
 
 
